@@ -35,6 +35,7 @@ export async function placeOrder(input: CheckoutInput): Promise<PlaceOrderResult
 
   const supabase = await createClient();
 
+  // Fix: Added 'as any' to resolve TypeScript type inference issue with RPC parameters
   const { data: summary, error } = await supabase.rpc('create_order', {
     p_full_name: data.fullName,
     p_email: data.email,
@@ -45,8 +46,11 @@ export async function placeOrder(input: CheckoutInput): Promise<PlaceOrderResult
     p_postal_code: data.postalCode,
     p_delivery_notes: data.deliveryNotes || null,
     p_payment_method: data.paymentMethod,
-    p_items: data.items.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
-  });
+    p_items: data.items.map((i) => ({ 
+      product_id: i.productId, 
+      quantity: i.quantity 
+    })),
+  } as any);
 
   if (error) {
     // Postgres exceptions raised inside create_order (out of stock, inactive
