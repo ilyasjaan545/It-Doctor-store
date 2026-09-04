@@ -94,6 +94,32 @@ export interface Database {
       order_items: { Row: OrderItem; Insert: Partial<OrderItem>; Update: Partial<OrderItem> };
       store_settings: { Row: StoreSettings; Insert: Partial<StoreSettings>; Update: Partial<StoreSettings> };
     };
+    Functions: {
+      create_order: {
+        Args: {
+          p_full_name: string;
+          p_email: string;
+          p_phone: string;
+          p_address: string;
+          p_city: string;
+          p_province: string;
+          p_postal_code: string;
+          p_delivery_notes: string | null;
+          p_payment_method: PaymentMethod;
+          p_items: { product_id: string; quantity: number }[];
+        };
+        Returns: {
+          order_id: string;
+          subtotal_cents: number;
+          delivery_fee_cents: number;
+          total_cents: number;
+        };
+      };
+      admin_set_user_role: {
+        Args: { target_user: string; new_role: UserRole };
+        Returns: undefined;
+      };
+    };
   };
 }
 
