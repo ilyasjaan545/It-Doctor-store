@@ -6,11 +6,27 @@ import { productImageUrl } from '@/lib/image-url';
 import { formatPKR } from '@/lib/money';
 import AddToCartButton from '@/components/AddToCartButton';
 
+// Define the Product type based on your schema
+interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  price_cents: number;
+  compare_at_price_cents: number | null;
+  stock: number;
+  image_path: string | null;
+  is_active: boolean;
+  category_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getProduct(slug: string) {
+async function getProduct(slug: string): Promise<Product | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('products')
@@ -18,7 +34,7 @@ async function getProduct(slug: string) {
     .eq('slug', slug)
     .eq('is_active', true)
     .single();
-  return data;
+  return data as Product | null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -47,16 +63,26 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="relative aspect-square w-full overflow-hidden rounded-card bg-white">
           {imgUrl ? (
-            <Image src={imgUrl} alt={product.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+            <Image 
+              src={imgUrl} 
+              alt={product.name} 
+              fill 
+              sizes="(max-width: 1024px) 100vw, 50vw" 
+              className="object-cover" 
+            />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-gray-400">No image</div>
+            <div className="flex h-full items-center justify-center text-sm text-gray-400">
+              No image
+            </div>
           )}
         </div>
 
         <div>
           <h1 className="text-2xl font-semibold text-brand">{product.name}</h1>
           <div className="mt-3 flex items-baseline gap-3">
-            <span className="text-2xl font-bold text-brand">{formatPKR(product.price_cents)}</span>
+            <span className="text-2xl font-bold text-brand">
+              {formatPKR(product.price_cents)}
+            </span>
             {product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents && (
               <span className="text-base text-gray-400 line-through">
                 {formatPKR(product.compare_at_price_cents)}
